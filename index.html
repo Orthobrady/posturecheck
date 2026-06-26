@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0f1117">
+<meta name="theme-color" content="#f5f3ff">
 <title>PostureCheck — 골반·어깨 정렬 분석</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: #0f1117;
-  color: #e8eaf0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f5f3ff;
+  color: #2d2440;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -18,157 +18,220 @@ body {
 }
 header {
   width: 100%;
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid #1e2130;
+  padding: 18px 20px 14px;
+  background: white;
+  border-bottom: 1px solid #ede9f7;
   display: flex;
   align-items: center;
   gap: 10px;
+  box-shadow: 0 1px 8px rgba(120,80,200,0.06);
 }
-.logo { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #7c8cf8; text-transform: uppercase; }
-.title { font-size: 14px; font-weight: 500; color: #c8cfe8; }
-.badge { font-size: 10px; background: #1e2540; color: #7c8cf8; border: 1px solid #4d5dff44; padding: 2px 8px; border-radius: 20px; }
+.logo { font-size: 16px; font-weight: 800; color: #7c4dff; letter-spacing: -0.02em; }
+.title { font-size: 13px; font-weight: 500; color: #9e8fc0; }
+.badge { font-size: 10px; background: #ede9f7; color: #7c4dff; padding: 2px 8px; border-radius: 20px; margin-left: auto; font-weight: 600; }
 
-.main { width: 100%; max-width: 520px; padding: 16px; flex: 1; }
+.main { width: 100%; max-width: 480px; padding: 16px; flex: 1; }
 
+/* Step indicator */
 .step-indicator {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
+  display: flex; align-items: center; margin-bottom: 20px; padding: 0 4px;
 }
-.step-node {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1;
-}
+.step-node { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
 .step-circle {
-  width: 28px; height: 28px; border-radius: 50%;
-  border: 2px solid #2a3050;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid #ddd6f7;
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; color: #3a4060;
-  background: #0f1117; transition: all 0.3s;
+  font-size: 12px; font-weight: 700; color: #c4b8e8;
+  background: white; transition: all 0.3s;
 }
-.step-circle.active { border-color: #4d5dff; color: #4d5dff; background: #1a1f35; }
-.step-circle.done { border-color: #22c55e; color: white; background: #22c55e; }
-.step-name { font-size: 10px; color: #3a4060; transition: all 0.3s; }
-.step-name.active { color: #7c8cf8; }
-.step-name.done { color: #22c55e; }
-.step-line { flex: 1; height: 2px; background: #1e2130; margin-bottom: 14px; transition: all 0.3s; }
-.step-line.done { background: #22c55e; }
+.step-circle.active { border-color: #7c4dff; color: white; background: linear-gradient(135deg, #7c4dff, #a87fff); box-shadow: 0 4px 12px rgba(124,77,255,0.3); }
+.step-circle.done { border-color: #7c4dff; color: white; background: #7c4dff; }
+.step-name { font-size: 11px; color: #c4b8e8; font-weight: 500; transition: all 0.3s; }
+.step-name.active { color: #7c4dff; font-weight: 700; }
+.step-name.done { color: #7c4dff; }
+.step-line { flex: 1; height: 2px; background: #ddd6f7; margin-bottom: 16px; transition: all 0.3s; border-radius: 2px; }
+.step-line.done { background: linear-gradient(90deg, #7c4dff, #a87fff); }
 
+/* Info box */
+.info-box {
+  background: white;
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 12px rgba(120,80,200,0.08);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.info-icon {
+  width: 52px; height: 52px; border-radius: 16px;
+  background: linear-gradient(135deg, #ede9f7, #ddd6f7);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 24px;
+}
+.info-content { flex: 1; }
+.info-title { font-size: 15px; font-weight: 700; color: #2d2440; margin-bottom: 6px; }
+.info-desc { font-size: 13px; color: #8070a8; line-height: 1.6; }
+.sticker-row { display: flex; gap: 10px; margin-top: 10px; }
+.sticker-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600;
+  background: #f5f3ff; padding: 4px 10px; border-radius: 20px; color: #5a4080;
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.dot-red { background: #ff6b8a; }
+.dot-blue { background: #6b9fff; }
+
+/* Camera wrap */
 .canvas-wrap {
-  position: relative; background: #050710;
-  border-radius: 14px; overflow: hidden;
-  border: 1px solid #2a3050; margin-bottom: 14px; aspect-ratio: 3/4;
+  position: relative;
+  background: #e8e4f4;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  aspect-ratio: 3/4;
+  box-shadow: 0 4px 20px rgba(120,80,200,0.12);
 }
 #videoEl { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; }
 #guideCanvas { position: absolute; top:0; left:0; width:100%; height:100%; }
 
-.align-bar {
-  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-  background: rgba(0,0,0,0.75); border-radius: 20px;
-  padding: 6px 14px; display: flex; align-items: center; gap: 8px;
-  font-size: 12px; backdrop-filter: blur(4px); white-space: nowrap;
+/* Viewfinder corners */
+.canvas-wrap::before, .canvas-wrap::after {
+  content: '';
+  position: absolute;
+  width: 24px; height: 24px;
+  border-color: #7c4dff;
+  border-style: solid;
+  z-index: 10;
+  border-radius: 4px;
 }
-.align-dot { width: 8px; height: 8px; border-radius: 50%; background: #ff4d6d; transition: all 0.3s; }
-.align-dot.ok { background: #22c55e; }
+.canvas-wrap::before { top: 14px; left: 14px; border-width: 2px 0 0 2px; }
+.canvas-wrap::after { bottom: 14px; right: 14px; border-width: 0 2px 2px 0; }
+
+.align-bar {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,0.92); border-radius: 20px;
+  padding: 6px 14px; display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; color: #5a4080;
+  backdrop-filter: blur(8px); white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(120,80,200,0.15);
+}
+.align-dot { width: 8px; height: 8px; border-radius: 50%; background: #ff6b8a; transition: all 0.3s; }
+.align-dot.ok { background: #4ade80; }
 
 .level-wrap {
   position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-  background: rgba(0,0,0,0.75); border-radius: 12px;
-  padding: 8px 16px; display: flex; flex-direction: column; align-items: center; gap: 6px;
-  backdrop-filter: blur(4px);
+  background: rgba(255,255,255,0.92); border-radius: 16px;
+  padding: 10px 18px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(120,80,200,0.15);
 }
 .level-track {
-  width: 120px; height: 8px; background: #1e2130; border-radius: 4px;
+  width: 130px; height: 6px; background: #ede9f7; border-radius: 3px;
   position: relative; overflow: visible;
 }
 .level-bubble {
-  width: 12px; height: 12px; border-radius: 50%; background: #ff4d6d;
-  position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
-  transition: left 0.1s;
+  width: 14px; height: 14px; border-radius: 50%; background: #ff6b8a;
+  position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+  transition: left 0.1s; box-shadow: 0 2px 6px rgba(255,107,138,0.4);
 }
-.level-center { position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #4d5dff44; }
-.level-label { font-size: 10px; color: #8090b8; }
+.level-center { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 2px; height: 18px; background: #ddd6f7; border-radius: 1px; }
+.level-label { font-size: 11px; color: #9e8fc0; font-weight: 500; }
 
-.info-box {
-  background: #161b2e; border: 1px solid #2a3050;
-  border-radius: 10px; padding: 14px;
-  font-size: 13px; color: #8090b8; line-height: 1.6; margin-bottom: 14px;
+/* Body silhouette in camera */
+.silhouette-hint {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  opacity: 0.18; pointer-events: none;
+  font-size: 120px; line-height: 1;
 }
-.info-box strong { color: #e8eaf0; }
-.sticker-row { display: flex; gap: 14px; margin-top: 8px; }
-.sticker-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
-.dot { width: 10px; height: 10px; border-radius: 50%; }
-.dot-red { background: #ff4d6d; }
-.dot-blue { background: #4d94ff; }
 
+/* Point guide */
 .point-guide {
-  background: #161b2e; border: 1px solid #2a3050;
-  border-radius: 10px; padding: 12px; margin-bottom: 14px;
+  background: white; border-radius: 20px; padding: 16px;
+  margin-bottom: 14px; box-shadow: 0 2px 12px rgba(120,80,200,0.08);
 }
-.point-steps { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.point-guide-title { font-size: 14px; font-weight: 700; color: #2d2440; margin-bottom: 4px; }
+.point-guide-sub { font-size: 12px; color: #9e8fc0; margin-bottom: 12px; }
+.point-steps { display: flex; flex-direction: column; gap: 8px; }
 .point-step {
-  display: flex; align-items: center; gap: 10px;
-  padding: 7px 10px; border-radius: 8px;
-  background: #0f1320; font-size: 13px;
-  opacity: 0.35; transition: all 0.3s;
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 14px;
+  background: #f9f7ff; font-size: 13px; font-weight: 500; color: #c4b8e8;
+  border: 1.5px solid transparent;
+  transition: all 0.3s;
 }
-.point-step.active { opacity: 1; border: 1px solid #4d5dff; background: #1a1f35; }
-.point-step.done { opacity: 0.65; }
-.point-step.done .sdot { background: #22c55e !important; }
-.sdot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.point-step.active {
+  opacity: 1; border-color: #7c4dff; background: #f0ebff; color: #5a2dd4;
+  box-shadow: 0 2px 8px rgba(124,77,255,0.12);
+}
+.point-step.done { color: #9e8fc0; background: #f5f3ff; }
+.point-step.done .sdot { background: #4ade80 !important; }
+.sdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
+/* Results */
 .results {
-  background: #161b2e; border: 1px solid #2a3050;
-  border-radius: 12px; padding: 16px; margin-bottom: 14px;
+  background: white; border-radius: 20px; padding: 18px;
+  margin-bottom: 14px; box-shadow: 0 2px 12px rgba(120,80,200,0.08);
 }
-.results-title { font-size: 11px; font-weight: 700; color: #7c8cf8; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+.results-title { font-size: 12px; font-weight: 700; color: #9e8fc0; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
 .result-row {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 9px 0; border-bottom: 1px solid #1e2340; font-size: 13px;
+  padding: 11px 0; border-bottom: 1px solid #f0ebff; font-size: 14px;
 }
 .result-row:last-child { border-bottom: none; }
-.result-label { color: #8090b8; }
-.result-val { font-weight: 700; font-size: 15px; }
-.val-normal { color: #22c55e; }
+.result-label { color: #8070a8; font-weight: 500; }
+.result-val { font-weight: 800; font-size: 16px; }
+.val-normal { color: #4ade80; }
 .val-mild { color: #f59e0b; }
-.val-abnormal { color: #ff4d6d; }
+.val-abnormal { color: #ff6b8a; }
 .verdict {
-  border-radius: 8px; padding: 12px 14px;
-  margin-top: 12px; font-size: 13px; font-weight: 600; text-align: center;
+  border-radius: 14px; padding: 14px 16px;
+  margin-top: 14px; font-size: 13px; font-weight: 700; text-align: center;
+  line-height: 1.5;
 }
-.verdict-normal { background: #0d2a1a; color: #22c55e; border: 1px solid #22c55e44; }
-.verdict-mild { background: #2a1f0d; color: #f59e0b; border: 1px solid #f59e0b44; }
-.verdict-abnormal { background: #2a0d1a; color: #ff4d6d; border: 1px solid #ff4d6d44; }
-.correction-note { font-size: 11px; color: #6070a0; margin-top: 8px; text-align: center; }
+.verdict-normal { background: #f0fdf4; color: #16a34a; border: 1.5px solid #bbf7d0; }
+.verdict-mild { background: #fffbeb; color: #d97706; border: 1.5px solid #fde68a; }
+.verdict-abnormal { background: #fff1f4; color: #e11d48; border: 1.5px solid #fecdd3; }
+.correction-note { font-size: 11px; color: #c4b8e8; margin-top: 10px; text-align: center; }
 
+/* Buttons */
 .btn {
-  width: 100%; padding: 13px; border-radius: 10px;
-  border: none; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
+  width: 100%; padding: 16px; border-radius: 16px;
+  border: none; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-.btn-primary { background: #4d5dff; color: white; }
-.btn-primary:hover { background: #3d4def; }
-.btn-capture { background: linear-gradient(135deg, #4d5dff, #7c4dff); color: white; font-size: 15px; }
-.btn-secondary { background: #1e2540; color: #c0c8e8; border: 1px solid #2a3050; }
+.btn-primary {
+  background: linear-gradient(135deg, #7c4dff, #a87fff);
+  color: white;
+  box-shadow: 0 6px 20px rgba(124,77,255,0.35);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,77,255,0.45); }
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary {
+  background: white; color: #7c4dff;
+  border: 2px solid #ddd6f7; font-weight: 600;
+}
+.btn-secondary:hover { background: #f5f3ff; }
 .hidden { display: none !important; }
 #uploadInput { display: none; }
 
-.tap-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair;
-}
+.tap-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; }
 .tap-hint-badge {
-  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-  background: rgba(77,93,255,0.9); color: white;
-  font-size: 11px; padding: 5px 12px; border-radius: 20px;
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  background: rgba(124,77,255,0.92); color: white;
+  font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px;
   pointer-events: none; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(124,77,255,0.3);
 }
 </style>
 </head>
 <body>
 <header>
   <span class="logo">PostureCheck</span>
-  <span style="color:#2a3050">|</span>
+  <span style="color:#ddd6f7; margin:0 4px">|</span>
   <span class="title">골반·어깨 정렬 분석</span>
-  <span class="badge">v2 보정</span>
+  <span class="badge">v2</span>
 </header>
 
 <div class="main">
@@ -192,16 +255,21 @@ header {
   <!-- STEP 1 -->
   <div id="step1View">
     <div class="info-box">
-      <strong>촬영 전 준비</strong><br>
-      편평한 벽 앞에 서서 정면을 바라보세요. ASIS 양측에 <span style="color:#ff4d6d">빨간</span>, acromion lateral corner에 <span style="color:#4d94ff">파란</span> 스티커를 붙이세요.
-      <div class="sticker-row">
-        <div class="sticker-item"><span class="dot dot-red"></span> ASIS 좌/우</div>
-        <div class="sticker-item"><span class="dot dot-blue"></span> Acromion 좌/우</div>
+      <div class="info-icon">🧍</div>
+      <div class="info-content">
+        <div class="info-title">촬영 전 준비</div>
+        <div class="info-desc">편평한 벽 앞에 서서 정면을 바라보세요. ASIS 양측에 <span style="color:#ff6b8a;font-weight:700">빨간</span>, acromion lateral corner에 <span style="color:#6b9fff;font-weight:700">파란</span> 스티커를 붙이세요.</div>
+        <div class="sticker-row">
+          <div class="sticker-item"><span class="dot dot-red"></span> ASIS 좌/우</div>
+          <div class="sticker-item"><span class="dot dot-blue"></span> Acromion 좌/우</div>
+        </div>
       </div>
     </div>
+
     <div class="canvas-wrap" id="camWrap">
       <video id="videoEl" autoplay playsinline></video>
       <canvas id="guideCanvas"></canvas>
+      <div class="silhouette-hint">🧍</div>
       <div class="align-bar" id="alignBar">
         <div class="align-dot" id="alignDot"></div>
         <span id="alignText">수평 맞추는 중...</span>
@@ -214,22 +282,29 @@ header {
         <div class="level-label" id="levelLabel">기울기: 0.0°</div>
       </div>
     </div>
-    <button class="btn btn-primary" id="btnStartCam" onclick="startCamera()">📷 카메라 시작</button>
-    <button class="btn btn-capture hidden" id="btnCapture" onclick="capturePhoto()">📸 촬영</button>
-    <button class="btn btn-secondary" onclick="document.getElementById('uploadInput').click()">🖼 사진 업로드</button>
+
+    <button class="btn btn-primary" id="btnStartCam" onclick="startCamera()">
+      <span>📷</span> 카메라 시작
+    </button>
+    <button class="btn btn-primary hidden" id="btnCapture" onclick="capturePhoto()">
+      <span>📸</span> 촬영
+    </button>
+    <button class="btn btn-secondary" onclick="document.getElementById('uploadInput').click()">
+      <span>🖼</span> 사진 업로드
+    </button>
     <input type="file" id="uploadInput" accept="image/*" onchange="loadImage(event)">
   </div>
 
   <!-- STEP 2 -->
   <div id="step2View" class="hidden">
     <div class="point-guide">
-      <div style="font-size:13px; font-weight:600;">포인트를 순서대로 탭하세요</div>
-      <div style="font-size:11px; color:#6070a0; margin-top:2px;">카메라 기울기 보정이 적용된 이미지입니다</div>
+      <div class="point-guide-title">포인트를 순서대로 탭하세요</div>
+      <div class="point-guide-sub">카메라 기울기 보정이 적용된 이미지입니다</div>
       <div class="point-steps">
-        <div class="point-step active" id="ps0"><span class="sdot dot-red"></span><span>① 우측 ASIS</span><span id="pc0" style="margin-left:auto"></span></div>
-        <div class="point-step" id="ps1"><span class="sdot dot-red"></span><span>② 좌측 ASIS</span><span id="pc1" style="margin-left:auto"></span></div>
-        <div class="point-step" id="ps2"><span class="sdot" style="background:#4d94ff"></span><span>③ 우측 Acromion</span><span id="pc2" style="margin-left:auto"></span></div>
-        <div class="point-step" id="ps3"><span class="sdot" style="background:#4d94ff"></span><span>④ 좌측 Acromion</span><span id="pc3" style="margin-left:auto"></span></div>
+        <div class="point-step active" id="ps0"><span class="sdot dot-red"></span><span>① 우측 ASIS</span><span id="pc0" style="margin-left:auto;color:#4ade80"></span></div>
+        <div class="point-step" id="ps1"><span class="sdot dot-red"></span><span>② 좌측 ASIS</span><span id="pc1" style="margin-left:auto;color:#4ade80"></span></div>
+        <div class="point-step" id="ps2"><span class="sdot" style="background:#6b9fff"></span><span>③ 우측 Acromion</span><span id="pc2" style="margin-left:auto;color:#4ade80"></span></div>
+        <div class="point-step" id="ps3"><span class="sdot" style="background:#6b9fff"></span><span>④ 좌측 Acromion</span><span id="pc3" style="margin-left:auto;color:#4ade80"></span></div>
       </div>
     </div>
     <div class="canvas-wrap" id="markWrap" style="aspect-ratio:auto;">
@@ -266,256 +341,227 @@ header {
 </div>
 
 <script>
-let stream = null, rawImageData = null, correctedCanvas = null;
-let points = [], currentStep = 0, tiltAngle = 0, tiltOk = false;
-const STEP_LABELS = ['우측 ASIS','좌측 ASIS','우측 Acromion','좌측 Acromion'];
-const STEP_COLORS = ['#ff4d6d','#ff4d6d','#4d94ff','#4d94ff'];
+let stream=null, rawImageData=null, correctedCanvas=null;
+let points=[], currentStep=0, tiltAngle=0, tiltOk=false;
+const STEP_LABELS=['우측 ASIS','좌측 ASIS','우측 Acromion','좌측 Acromion'];
+const STEP_COLORS=['#ff6b8a','#ff6b8a','#6b9fff','#6b9fff'];
 
 function initOrientation() {
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission().then(p => {
-      if (p === 'granted') window.addEventListener('deviceorientation', onOrient);
-    }).catch(() => { tiltOk = true; updateLevelUI(0); });
+  if (typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function') {
+    DeviceOrientationEvent.requestPermission().then(p=>{
+      if(p==='granted') window.addEventListener('deviceorientation',onOrient);
+    }).catch(()=>{tiltOk=true;updateLevelUI(0);});
   } else if (window.DeviceOrientationEvent) {
-    window.addEventListener('deviceorientation', onOrient);
-  } else {
-    tiltOk = true; updateLevelUI(0);
-  }
+    window.addEventListener('deviceorientation',onOrient);
+  } else { tiltOk=true; updateLevelUI(0); }
 }
-
-function onOrient(e) {
-  tiltAngle = e.gamma || 0;
-  updateLevelUI(tiltAngle);
+function onOrient(e){ tiltAngle=e.gamma||0; updateLevelUI(tiltAngle); }
+function updateLevelUI(gamma){
+  const bubble=document.getElementById('levelBubble');
+  const label=document.getElementById('levelLabel');
+  const alignDot=document.getElementById('alignDot');
+  const alignText=document.getElementById('alignText');
+  if(!bubble) return;
+  const clamped=Math.max(-15,Math.min(15,gamma));
+  bubble.style.left=(50+(clamped/15)*40)+'%';
+  label.textContent='기울기: '+gamma.toFixed(1)+'°';
+  tiltOk=Math.abs(gamma)<3;
+  bubble.style.background=tiltOk?'#4ade80':'#ff6b8a';
+  bubble.style.boxShadow=tiltOk?'0 2px 6px rgba(74,222,128,0.4)':'0 2px 6px rgba(255,107,138,0.4)';
+  alignDot.className='align-dot'+(tiltOk?' ok':'');
+  alignText.textContent=tiltOk?'수평 정렬 완료 ✓':(gamma>0?'왼쪽':'오른쪽')+'으로 기울었습니다';
+  const btn=document.getElementById('btnCapture');
+  if(btn&&!btn.classList.contains('hidden')) btn.style.opacity=tiltOk?'1':'0.6';
 }
-
-function updateLevelUI(gamma) {
-  const bubble = document.getElementById('levelBubble');
-  const label = document.getElementById('levelLabel');
-  const alignDot = document.getElementById('alignDot');
-  const alignText = document.getElementById('alignText');
-  if (!bubble) return;
-  const clamped = Math.max(-15, Math.min(15, gamma));
-  bubble.style.left = (50 + (clamped / 15) * 40) + '%';
-  label.textContent = '기울기: ' + gamma.toFixed(1) + '°';
-  tiltOk = Math.abs(gamma) < 3;
-  bubble.style.background = tiltOk ? '#22c55e' : '#ff4d6d';
-  alignDot.className = 'align-dot' + (tiltOk ? ' ok' : '');
-  alignText.textContent = tiltOk ? '수평 정렬 완료 ✓' : (gamma > 0 ? '왼쪽' : '오른쪽') + '으로 기울었습니다';
-  const btn = document.getElementById('btnCapture');
-  if (btn && !btn.classList.contains('hidden')) btn.style.opacity = tiltOk ? '1' : '0.6';
-}
-
-function drawGuide() {
-  const wrap = document.getElementById('camWrap');
-  const gc = document.getElementById('guideCanvas');
-  gc.width = wrap.offsetWidth; gc.height = wrap.offsetHeight;
-  const ctx = gc.getContext('2d');
-  const w = gc.width, h = gc.height;
-  ctx.strokeStyle = 'rgba(77,93,255,0.2)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
-  [w/3, w*2/3].forEach(x => { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); });
-  [h/3, h*2/3].forEach(y => { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); });
+function drawGuide(){
+  const wrap=document.getElementById('camWrap');
+  const gc=document.getElementById('guideCanvas');
+  gc.width=wrap.offsetWidth; gc.height=wrap.offsetHeight;
+  const ctx=gc.getContext('2d');
+  const w=gc.width, h=gc.height;
+  ctx.strokeStyle='rgba(124,77,255,0.15)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  [w/3,w*2/3].forEach(x=>{ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();});
+  [h/3,h*2/3].forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();});
   ctx.setLineDash([]);
-  ctx.strokeStyle = 'rgba(77,93,255,0.5)'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(w/2-20,h/2); ctx.lineTo(w/2+20,h/2); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(w/2,h/2-20); ctx.lineTo(w/2,h/2+20); ctx.stroke();
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1; ctx.setLineDash([6,4]);
-  const cx = w/2;
-  ctx.beginPath(); ctx.ellipse(cx, h*0.18, w*0.08, w*0.1, 0, 0, Math.PI*2); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(cx-w*0.12, h*0.28); ctx.lineTo(cx+w*0.12, h*0.28);
-  ctx.lineTo(cx+w*0.1, h*0.6); ctx.lineTo(cx-w*0.1, h*0.6); ctx.closePath(); ctx.stroke();
-  ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(124,77,255,0.4)'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(w/2-18,h/2);ctx.lineTo(w/2+18,h/2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w/2,h/2-18);ctx.lineTo(w/2,h/2+18);ctx.stroke();
 }
-
-async function startCamera() {
+async function startCamera(){
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-    const video = document.getElementById('videoEl');
-    video.srcObject = stream;
-    video.onloadedmetadata = () => {
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+    const video=document.getElementById('videoEl');
+    video.srcObject=stream;
+    video.onloadedmetadata=()=>{
       document.getElementById('btnStartCam').classList.add('hidden');
       document.getElementById('btnCapture').classList.remove('hidden');
       drawGuide(); initOrientation();
-      setTimeout(() => { if (!tiltOk && tiltAngle === 0) { tiltOk = true; updateLevelUI(0); } }, 1500);
+      setTimeout(()=>{if(!tiltOk&&tiltAngle===0){tiltOk=true;updateLevelUI(0);}},1500);
     };
-  } catch(e) {
-    alert('카메라 권한이 필요합니다. 사진 업로드를 이용해주세요.');
-  }
+  } catch(e){ alert('카메라 권한이 필요합니다. 사진 업로드를 이용해주세요.'); }
 }
-
-function capturePhoto() {
-  const video = document.getElementById('videoEl');
-  const tmp = document.createElement('canvas');
-  tmp.width = video.videoWidth || 640; tmp.height = video.videoHeight || 800;
-  tmp.getContext('2d').drawImage(video, 0, 0);
-  rawImageData = tmp.toDataURL('image/jpeg', 0.92);
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+function capturePhoto(){
+  const video=document.getElementById('videoEl');
+  const tmp=document.createElement('canvas');
+  tmp.width=video.videoWidth||640; tmp.height=video.videoHeight||800;
+  tmp.getContext('2d').drawImage(video,0,0);
+  rawImageData=tmp.toDataURL('image/jpeg',0.92);
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
   processImage(rawImageData);
 }
-
-function loadImage(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => { rawImageData = ev.target.result; tiltOk = true; processImage(rawImageData); };
+function loadImage(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{rawImageData=ev.target.result;tiltOk=true;processImage(rawImageData);};
   reader.readAsDataURL(file);
 }
-
-function processImage(src) {
-  const img = new Image();
-  img.onload = () => {
-    const angle = tiltAngle * Math.PI / 180;
-    const cos = Math.cos(-angle), sin = Math.sin(-angle);
-    const w = img.width, h = img.height;
-    const newW = Math.abs(w*cos) + Math.abs(h*sin);
-    const newH = Math.abs(w*sin) + Math.abs(h*cos);
-    const c = document.createElement('canvas');
-    c.width = Math.round(newW); c.height = Math.round(newH);
-    const ctx = c.getContext('2d');
-    ctx.translate(c.width/2, c.height/2);
+function processImage(src){
+  const img=new Image();
+  img.onload=()=>{
+    const angle=tiltAngle*Math.PI/180;
+    const cos=Math.cos(-angle), sin=Math.sin(-angle);
+    const w=img.width, h=img.height;
+    const newW=Math.abs(w*cos)+Math.abs(h*sin);
+    const newH=Math.abs(w*sin)+Math.abs(h*cos);
+    const c=document.createElement('canvas');
+    c.width=Math.round(newW); c.height=Math.round(newH);
+    const ctx=c.getContext('2d');
+    ctx.translate(c.width/2,c.height/2);
     ctx.rotate(-angle);
-    ctx.drawImage(img, -w/2, -h/2);
-    correctedCanvas = c;
+    ctx.drawImage(img,-w/2,-h/2);
+    correctedCanvas=c;
     showMarkingStep(c);
   };
-  img.src = src;
+  img.src=src;
 }
-
-function showMarkingStep(c) {
+function showMarkingStep(c){
   document.getElementById('step1View').classList.add('hidden');
   document.getElementById('step2View').classList.remove('hidden');
   updateStepIndicator(1);
-  const rc = document.getElementById('resultCanvas');
-  rc.width = c.width; rc.height = c.height;
-  rc.getContext('2d').drawImage(c, 0, 0);
-  document.getElementById('markWrap').style.aspectRatio = `${c.width}/${c.height}`;
-  points = []; currentStep = 0;
-  document.getElementById('tapHint').textContent = `탭: ${STEP_LABELS[0]}`;
+  const rc=document.getElementById('resultCanvas');
+  rc.width=c.width; rc.height=c.height;
+  rc.getContext('2d').drawImage(c,0,0);
+  document.getElementById('markWrap').style.aspectRatio=`${c.width}/${c.height}`;
+  points=[]; currentStep=0;
+  document.getElementById('tapHint').textContent=`탭: ${STEP_LABELS[0]}`;
 }
-
-function handleTap(e) {
-  if (currentStep >= 4) return;
-  const overlay = document.getElementById('tapOverlay');
-  const rect = overlay.getBoundingClientRect();
-  const rc = document.getElementById('resultCanvas');
-  const x = (e.clientX - rect.left) * (rc.width / rect.width);
-  const y = (e.clientY - rect.top) * (rc.height / rect.height);
-  points.push({ x, y, color: STEP_COLORS[currentStep] });
+function handleTap(e){
+  if(currentStep>=4) return;
+  const overlay=document.getElementById('tapOverlay');
+  const rect=overlay.getBoundingClientRect();
+  const rc=document.getElementById('resultCanvas');
+  const x=(e.clientX-rect.left)*(rc.width/rect.width);
+  const y=(e.clientY-rect.top)*(rc.height/rect.height);
+  points.push({x,y,color:STEP_COLORS[currentStep]});
   drawPointsOnCanvas();
   document.getElementById('ps'+currentStep).classList.remove('active');
   document.getElementById('ps'+currentStep).classList.add('done');
-  document.getElementById('pc'+currentStep).textContent = '✓';
+  document.getElementById('pc'+currentStep).textContent='✓';
   currentStep++;
-  if (currentStep < 4) {
+  if(currentStep<4){
     document.getElementById('ps'+currentStep).classList.add('active');
-    document.getElementById('tapHint').textContent = `탭: ${STEP_LABELS[currentStep]}`;
+    document.getElementById('tapHint').textContent=`탭: ${STEP_LABELS[currentStep]}`;
   } else {
     document.getElementById('tapHint').classList.add('hidden');
-    document.getElementById('tapOverlay').style.display = 'none';
-    setTimeout(showResults, 300);
+    document.getElementById('tapOverlay').style.display='none';
+    setTimeout(showResults,300);
   }
 }
-
-function drawPointsOnCanvas() {
-  const rc = document.getElementById('resultCanvas');
-  const ctx = rc.getContext('2d');
-  ctx.drawImage(correctedCanvas, 0, 0);
-  if (points.length >= 2) drawDashedLine(ctx, points[0], points[1], '#ff4d6d');
-  if (points.length >= 4) {
-    drawDashedLine(ctx, points[2], points[3], '#4d94ff');
-    const mx = (points[0].x + points[1].x) / 2;
-    ctx.beginPath(); ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]);
-    ctx.moveTo(mx,0); ctx.lineTo(mx,rc.height); ctx.stroke(); ctx.setLineDash([]);
+function drawPointsOnCanvas(){
+  const rc=document.getElementById('resultCanvas');
+  const ctx=rc.getContext('2d');
+  ctx.drawImage(correctedCanvas,0,0);
+  if(points.length>=2) drawDashedLine(ctx,points[0],points[1],'#ff6b8a');
+  if(points.length>=4){
+    drawDashedLine(ctx,points[2],points[3],'#6b9fff');
+    const mx=(points[0].x+points[1].x)/2;
+    ctx.beginPath();ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+    ctx.moveTo(mx,0);ctx.lineTo(mx,rc.height);ctx.stroke();ctx.setLineDash([]);
   }
-  points.forEach((p, i) => {
-    ctx.beginPath(); ctx.arc(p.x, p.y, 10, 0, Math.PI*2);
-    ctx.fillStyle = p.color; ctx.fill();
-    ctx.strokeStyle = 'white'; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = 'white'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(i+1, p.x, p.y+4);
+  points.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,11,0,Math.PI*2);
+    ctx.fillStyle=p.color;ctx.fill();
+    ctx.strokeStyle='white';ctx.lineWidth=2.5;ctx.stroke();
+    ctx.fillStyle='white';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+    ctx.fillText(i+1,p.x,p.y+4);
   });
 }
-
-function drawDashedLine(ctx, p1, p2, color) {
-  ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.setLineDash([7,4]);
-  ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); ctx.setLineDash([]);
+function drawDashedLine(ctx,p1,p2,color){
+  ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.setLineDash([7,4]);
+  ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.stroke();ctx.setLineDash([]);
 }
-
-function calcTilt(p1, p2) {
-  let a = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-  if (a > 90) a = 180 - a; if (a < -90) a = -180 - a;
+function calcTilt(p1,p2){
+  let a=Math.atan2(p2.y-p1.y,p2.x-p1.x)*180/Math.PI;
+  if(a>90) a=180-a; if(a<-90) a=-180-a;
   return Math.abs(a);
 }
-
-function showResults() {
-  const pelvis = calcTilt(points[0], points[1]);
-  const shoulder = calcTilt(points[2], points[3]);
-  const asym = Math.abs(pelvis - shoulder);
-  const rc = document.getElementById('resultCanvas');
-  const fc = document.getElementById('finalCanvas');
-  fc.width = rc.width; fc.height = rc.height;
-  const ctx = fc.getContext('2d');
-  ctx.drawImage(rc, 0, 0);
-  annotate(ctx, points[0], points[1], pelvis, '#ff4d6d', 'ASIS');
-  annotate(ctx, points[2], points[3], shoulder, '#4d94ff', 'Shoulder');
+function showResults(){
+  const pelvis=calcTilt(points[0],points[1]);
+  const shoulder=calcTilt(points[2],points[3]);
+  const asym=Math.abs(pelvis-shoulder);
+  const rc=document.getElementById('resultCanvas');
+  const fc=document.getElementById('finalCanvas');
+  fc.width=rc.width; fc.height=rc.height;
+  const ctx=fc.getContext('2d');
+  ctx.drawImage(rc,0,0);
+  annotate(ctx,points[0],points[1],pelvis,'#ff6b8a','ASIS');
+  annotate(ctx,points[2],points[3],shoulder,'#6b9fff','Shoulder');
   document.getElementById('step2View').classList.add('hidden');
   document.getElementById('step3View').classList.remove('hidden');
-  document.getElementById('finalWrap').style.aspectRatio = `${fc.width}/${fc.height}`;
+  document.getElementById('finalWrap').style.aspectRatio=`${fc.width}/${fc.height}`;
   updateStepIndicator(2);
-  const pc = pelvis < 2 ? 'val-normal' : pelvis < 5 ? 'val-mild' : 'val-abnormal';
-  const sc = shoulder < 2 ? 'val-normal' : shoulder < 5 ? 'val-mild' : 'val-abnormal';
-  const ac = asym < 2 ? 'val-normal' : asym < 5 ? 'val-mild' : 'val-abnormal';
-  document.getElementById('resPelvis').className = 'result-val ' + pc;
-  document.getElementById('resPelvis').textContent = pelvis.toFixed(1) + '°';
-  document.getElementById('resShoulder').className = 'result-val ' + sc;
-  document.getElementById('resShoulder').textContent = shoulder.toFixed(1) + '°';
-  document.getElementById('resAsym').className = 'result-val ' + ac;
-  document.getElementById('resAsym').textContent = asym.toFixed(1) + '°';
-  const max = Math.max(pelvis, shoulder);
-  const v = document.getElementById('verdict');
-  if (max < 2) { v.className = 'verdict verdict-normal'; v.textContent = '✅ 정렬 양호 — 임상적으로 유의한 비대칭 없음'; }
-  else if (max < 5) { v.className = 'verdict verdict-mild'; v.textContent = '⚠️ 경미한 비대칭 — 임상 증상과 연관하여 판단 필요'; }
-  else { v.className = 'verdict verdict-abnormal'; v.textContent = '❗ 유의한 비대칭 — 추가 평가 권장'; }
-  document.getElementById('corrNote').textContent = Math.abs(tiltAngle) > 0.5
-    ? `📐 카메라 기울기 ${tiltAngle.toFixed(1)}° 보정 적용됨` : '📐 보정 없음 (수평 촬영)';
+  const pc=pelvis<2?'val-normal':pelvis<5?'val-mild':'val-abnormal';
+  const sc=shoulder<2?'val-normal':shoulder<5?'val-mild':'val-abnormal';
+  const ac=asym<2?'val-normal':asym<5?'val-mild':'val-abnormal';
+  document.getElementById('resPelvis').className='result-val '+pc;
+  document.getElementById('resPelvis').textContent=pelvis.toFixed(1)+'°';
+  document.getElementById('resShoulder').className='result-val '+sc;
+  document.getElementById('resShoulder').textContent=shoulder.toFixed(1)+'°';
+  document.getElementById('resAsym').className='result-val '+ac;
+  document.getElementById('resAsym').textContent=asym.toFixed(1)+'°';
+  const max=Math.max(pelvis,shoulder);
+  const v=document.getElementById('verdict');
+  if(max<2){v.className='verdict verdict-normal';v.textContent='✅ 정렬 양호 — 임상적으로 유의한 비대칭 없음';}
+  else if(max<5){v.className='verdict verdict-mild';v.textContent='⚠️ 경미한 비대칭 — 임상 증상과 연관하여 판단 필요';}
+  else{v.className='verdict verdict-abnormal';v.textContent='❗ 유의한 비대칭 — 추가 평가 권장';}
+  document.getElementById('corrNote').textContent=Math.abs(tiltAngle)>0.5
+    ?`📐 카메라 기울기 ${tiltAngle.toFixed(1)}° 보정 적용됨`:'📐 보정 없음 (수평 촬영)';
 }
-
-function annotate(ctx, p1, p2, angle, color, label) {
-  const mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2 - 18;
-  ctx.fillStyle = 'rgba(0,0,0,0.65)';
+function annotate(ctx,p1,p2,angle,color,label){
+  const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2-20;
+  ctx.fillStyle='rgba(255,255,255,0.88)';
   ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(mx-38, my-14, 76, 22, 6);
-  else ctx.rect(mx-38, my-14, 76, 22);
+  if(ctx.roundRect) ctx.roundRect(mx-40,my-14,80,24,8);
+  else ctx.rect(mx-40,my-14,80,24);
   ctx.fill();
-  ctx.fillStyle = color; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText(`${label}: ${angle.toFixed(1)}°`, mx, my+2);
+  ctx.fillStyle=color;ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+  ctx.fillText(`${label}: ${angle.toFixed(1)}°`,mx,my+3);
 }
-
-function updateStepIndicator(active) {
-  for (let i = 0; i < 3; i++) {
-    const c = document.getElementById('sc'+i), n = document.getElementById('sn'+i);
-    if (i < active) { c.className = 'step-circle done'; c.textContent = '✓'; n.className = 'step-name done'; }
-    else if (i === active) { c.className = 'step-circle active'; n.className = 'step-name active'; }
-    else { c.className = 'step-circle'; n.className = 'step-name'; }
-    if (i < 2) document.getElementById('sl'+i).className = 'step-line' + (i < active ? ' done' : '');
+function updateStepIndicator(active){
+  for(let i=0;i<3;i++){
+    const c=document.getElementById('sc'+i),n=document.getElementById('sn'+i);
+    if(i<active){c.className='step-circle done';c.textContent='✓';n.className='step-name done';}
+    else if(i===active){c.className='step-circle active';n.className='step-name active';}
+    else{c.className='step-circle';n.className='step-name';}
+    if(i<2) document.getElementById('sl'+i).className='step-line'+(i<active?' done':'');
   }
 }
-
-function resetAll() {
-  points = []; currentStep = 0; tiltAngle = 0; tiltOk = false;
-  rawImageData = null; correctedCanvas = null;
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+function resetAll(){
+  points=[];currentStep=0;tiltAngle=0;tiltOk=false;
+  rawImageData=null;correctedCanvas=null;
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
   document.getElementById('step1View').classList.remove('hidden');
   document.getElementById('step2View').classList.add('hidden');
   document.getElementById('step3View').classList.add('hidden');
   document.getElementById('btnStartCam').classList.remove('hidden');
   document.getElementById('btnCapture').classList.add('hidden');
-  document.getElementById('tapOverlay').style.display = '';
+  document.getElementById('tapOverlay').style.display='';
   document.getElementById('tapHint').classList.remove('hidden');
-  document.getElementById('uploadInput').value = '';
+  document.getElementById('uploadInput').value='';
   updateStepIndicator(0);
-  for (let i = 0; i < 4; i++) {
+  for(let i=0;i<4;i++){
     document.getElementById('ps'+i).classList.remove('active','done');
-    document.getElementById('pc'+i).textContent = '';
+    document.getElementById('pc'+i).textContent='';
   }
   document.getElementById('ps0').classList.add('active');
 }
