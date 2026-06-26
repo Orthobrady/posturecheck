@@ -162,7 +162,53 @@ header {
   100% { box-shadow: 0 6px 20px rgba(124,77,255,0.35); }
 }
 
-/* Level instruction overlay */
+/* Countdown overlay */
+.countdown-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(45,36,64,0.45);
+  backdrop-filter: blur(2px);
+  z-index: 20;
+  pointer-events: none;
+}
+.countdown-number {
+  font-size: 96px; font-weight: 900; color: white;
+  text-shadow: 0 4px 24px rgba(124,77,255,0.6);
+  line-height: 1;
+  animation: countPulse 1s ease-out;
+}
+@keyframes countPulse {
+  0% { transform: scale(1.4); opacity: 0.4; }
+  40% { transform: scale(1.0); opacity: 1; }
+  85% { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+.countdown-label {
+  font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.85);
+  margin-top: 12px; letter-spacing: 0.05em;
+}
+.countdown-cancel {
+  margin-top: 20px;
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: white; font-size: 13px; font-weight: 600;
+  padding: 8px 20px; border-radius: 20px; cursor: pointer;
+  pointer-events: all;
+  backdrop-filter: blur(4px);
+}
+.countdown-cancel:hover { background: rgba(255,255,255,0.3); }
+
+/* Flash effect on capture */
+.flash {
+  position: absolute; top:0; left:0; width:100%; height:100%;
+  background: white; z-index: 30; opacity: 0;
+  animation: flashAnim 0.3s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes flashAnim {
+  0% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
 .level-instruction {
   position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
   background: rgba(255,107,138,0.9); color: white;
@@ -329,6 +375,9 @@ header {
     <button class="btn btn-primary hidden btn-capture-locked" id="btnCapture" onclick="tryCapturePhoto()">
       <span>📸</span> 수평을 맞춰주세요
     </button>
+    <button class="btn btn-secondary hidden" id="btnTimer" onclick="tryStartTimer()">
+      <span>⏱</span> 10초 후 자동 촬영
+    </button>
     <button class="btn btn-secondary" onclick="document.getElementById('uploadInput').click()">
       <span>🖼</span> 사진 업로드
     </button>
@@ -448,6 +497,74 @@ function drawGuide(){
   ctx.beginPath();ctx.moveTo(w/2-18,h/2);ctx.lineTo(w/2+18,h/2);ctx.stroke();
   ctx.beginPath();ctx.moveTo(w/2,h/2-18);ctx.lineTo(w/2,h/2+18);ctx.stroke();
 }
+let timerInterval = null;
+
+function tryStartTimer(){
+  if(!tiltOk){
+    const btn=document.getElementById('btnTimer');
+    btn.style.transform='translateX(-6px)';
+    setTimeout(()=>{btn.style.transform='translateX(6px)';},80);
+    setTimeout(()=>{btn.style.transform='translateX(-4px)';},160);
+    setTimeout(()=>{btn.style.transform='translateX(0)';},240);
+    // 수평 안맞으면 3초 후 자동으로 시작 (수평 맞추는 시간 주기)
+    alert('먼저 핸드폰을 수평으로 맞춰주세요!');
+    return;
+  }
+  startCountdown(10);
+}
+
+function startCountdown(sec){
+  // 버튼 비활성화
+  document.getElementById('btnCapture').classList.add('hidden');
+  document.getElementById('btnTimer').classList.add('hidden');
+
+  // 카운트다운 overlay 생성
+  const wrap = document.getElementById('camWrap');
+  const overlay = document.createElement('div');
+  overlay.className = 'countdown-overlay';
+  overlay.id = 'countdownOverlay';
+  overlay.innerHTML = `
+    <div class="countdown-number" id="countNum">${sec}</div>
+    <div class="countdown-label">초 후 자동 촬영</div>
+    <button class="countdown-cancel" onclick="cancelCountdown()">취소</button>
+  `;
+  wrap.appendChild(overlay);
+
+  let remaining = sec;
+  timerInterval = setInterval(()=>{
+    remaining--;
+    const numEl = document.getElementById('countNum');
+    if(numEl){
+      numEl.textContent = remaining;
+      // 재시작 애니메이션
+      numEl.style.animation = 'none';
+      numEl.offsetHeight; // reflow
+      numEl.style.animation = 'countPulse 1s ease-out';
+    }
+    if(remaining <= 0){
+      clearInterval(timerInterval);
+      timerInterval = null;
+      // 플래시 효과
+      const flash = document.createElement('div');
+      flash.className = 'flash';
+      wrap.appendChild(flash);
+      setTimeout(()=>{ if(flash.parentNode) flash.parentNode.removeChild(flash); }, 300);
+      // overlay 제거 후 촬영
+      const ov = document.getElementById('countdownOverlay');
+      if(ov) ov.parentNode.removeChild(ov);
+      capturePhoto();
+    }
+  }, 1000);
+}
+
+function cancelCountdown(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  const ov=document.getElementById('countdownOverlay');
+  if(ov) ov.parentNode.removeChild(ov);
+  document.getElementById('btnCapture').classList.remove('hidden');
+  document.getElementById('btnTimer').classList.remove('hidden');
+}
+
 function tryCapturePhoto(){
   if(!tiltOk){
     // 흔들기 애니메이션
@@ -468,6 +585,7 @@ async function startCamera(){
     video.onloadedmetadata=()=>{
       document.getElementById('btnStartCam').classList.add('hidden');
       document.getElementById('btnCapture').classList.remove('hidden');
+      document.getElementById('btnTimer').classList.remove('hidden');
       document.getElementById('levelInstruction').style.display='block';
       drawGuide(); initOrientation();
       setTimeout(()=>{if(!tiltOk&&tiltAngle===0){tiltOk=true;updateLevelUI(0);}},1500);
@@ -626,11 +744,15 @@ function resetAll(){
   points=[];currentStep=0;tiltAngle=0;tiltOk=false;
   rawImageData=null;correctedCanvas=null;
   if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  const ov=document.getElementById('countdownOverlay');
+  if(ov) ov.parentNode.removeChild(ov);
   document.getElementById('step1View').classList.remove('hidden');
   document.getElementById('step2View').classList.add('hidden');
   document.getElementById('step3View').classList.add('hidden');
   document.getElementById('btnStartCam').classList.remove('hidden');
   document.getElementById('btnCapture').classList.add('hidden');
+  document.getElementById('btnTimer').classList.add('hidden');
   document.getElementById('tapOverlay').style.display='';
   document.getElementById('tapHint').classList.remove('hidden');
   document.getElementById('uploadInput').value='';
