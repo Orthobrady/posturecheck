@@ -138,6 +138,45 @@ header {
 .level-center { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 2px; height: 18px; background: #ddd6f7; border-radius: 1px; }
 .level-label { font-size: 11px; color: #9e8fc0; font-weight: 500; }
 
+/* Level locked state */
+.level-wrap.locked {
+  background: rgba(74,222,128,0.15);
+  box-shadow: 0 2px 12px rgba(74,222,128,0.3);
+}
+.level-wrap.locked .level-label { color: #16a34a; font-weight: 700; }
+
+/* Capture button locked/unlocked */
+.btn-capture-locked {
+  background: #e8e4f4 !important;
+  color: #b0a0d0 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+.btn-capture-ready {
+  animation: pulseGreen 1.5s ease-in-out;
+}
+@keyframes pulseGreen {
+  0% { box-shadow: 0 6px 20px rgba(124,77,255,0.35); }
+  50% { box-shadow: 0 6px 28px rgba(74,222,128,0.5); }
+  100% { box-shadow: 0 6px 20px rgba(124,77,255,0.35); }
+}
+
+/* Level instruction overlay */
+.level-instruction {
+  position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: rgba(255,107,138,0.9); color: white;
+  font-size: 12px; font-weight: 700; padding: 8px 16px; border-radius: 20px;
+  pointer-events: none; white-space: nowrap;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(255,107,138,0.4);
+}
+.level-instruction.ok {
+  background: rgba(74,222,128,0.9);
+  box-shadow: 0 2px 8px rgba(74,222,128,0.4);
+}
+
 /* Body silhouette in camera */
 .silhouette-hint {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -281,13 +320,14 @@ header {
         </div>
         <div class="level-label" id="levelLabel">기울기: 0.0°</div>
       </div>
+      <div class="level-instruction" id="levelInstruction">📱 핸드폰을 수평으로 맞춰주세요</div>
     </div>
 
     <button class="btn btn-primary" id="btnStartCam" onclick="startCamera()">
       <span>📷</span> 카메라 시작
     </button>
-    <button class="btn btn-primary hidden" id="btnCapture" onclick="capturePhoto()">
-      <span>📸</span> 촬영
+    <button class="btn btn-primary hidden btn-capture-locked" id="btnCapture" onclick="tryCapturePhoto()">
+      <span>📸</span> 수평을 맞춰주세요
     </button>
     <button class="btn btn-secondary" onclick="document.getElementById('uploadInput').click()">
       <span>🖼</span> 사진 업로드
@@ -361,6 +401,9 @@ function updateLevelUI(gamma){
   const label=document.getElementById('levelLabel');
   const alignDot=document.getElementById('alignDot');
   const alignText=document.getElementById('alignText');
+  const levelWrap=document.getElementById('levelWrap');
+  const instruction=document.getElementById('levelInstruction');
+  const btn=document.getElementById('btnCapture');
   if(!bubble) return;
   const clamped=Math.max(-15,Math.min(15,gamma));
   bubble.style.left=(50+(clamped/15)*40)+'%';
@@ -370,8 +413,26 @@ function updateLevelUI(gamma){
   bubble.style.boxShadow=tiltOk?'0 2px 6px rgba(74,222,128,0.4)':'0 2px 6px rgba(255,107,138,0.4)';
   alignDot.className='align-dot'+(tiltOk?' ok':'');
   alignText.textContent=tiltOk?'수평 정렬 완료 ✓':(gamma>0?'왼쪽':'오른쪽')+'으로 기울었습니다';
-  const btn=document.getElementById('btnCapture');
-  if(btn&&!btn.classList.contains('hidden')) btn.style.opacity=tiltOk?'1':'0.6';
+
+  if(tiltOk){
+    levelWrap.classList.add('locked');
+    label.textContent='수평 완료 ✓';
+    if(instruction){ instruction.textContent='✅ 수평 완료! 촬영하세요'; instruction.classList.add('ok'); }
+    if(btn&&!btn.classList.contains('hidden')){
+      btn.classList.remove('btn-capture-locked');
+      btn.innerHTML='<span>📸</span> 촬영';
+      btn.classList.add('btn-capture-ready');
+    }
+  } else {
+    levelWrap.classList.remove('locked');
+    const dir=gamma>0?'왼쪽':'오른쪽';
+    if(instruction){ instruction.textContent=`📱 ${dir}으로 기울었어요 (${Math.abs(gamma).toFixed(1)}°)`; instruction.classList.remove('ok'); }
+    if(btn&&!btn.classList.contains('hidden')){
+      btn.classList.add('btn-capture-locked');
+      btn.innerHTML='<span>📸</span> 수평을 맞춰주세요';
+      btn.classList.remove('btn-capture-ready');
+    }
+  }
 }
 function drawGuide(){
   const wrap=document.getElementById('camWrap');
@@ -387,6 +448,18 @@ function drawGuide(){
   ctx.beginPath();ctx.moveTo(w/2-18,h/2);ctx.lineTo(w/2+18,h/2);ctx.stroke();
   ctx.beginPath();ctx.moveTo(w/2,h/2-18);ctx.lineTo(w/2,h/2+18);ctx.stroke();
 }
+function tryCapturePhoto(){
+  if(!tiltOk){
+    // 흔들기 애니메이션
+    const btn=document.getElementById('btnCapture');
+    btn.style.transform='translateX(-6px)';
+    setTimeout(()=>{btn.style.transform='translateX(6px)';},80);
+    setTimeout(()=>{btn.style.transform='translateX(-4px)';},160);
+    setTimeout(()=>{btn.style.transform='translateX(0)';},240);
+    return;
+  }
+  capturePhoto();
+}
 async function startCamera(){
   try {
     stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
@@ -395,12 +468,15 @@ async function startCamera(){
     video.onloadedmetadata=()=>{
       document.getElementById('btnStartCam').classList.add('hidden');
       document.getElementById('btnCapture').classList.remove('hidden');
+      document.getElementById('levelInstruction').style.display='block';
       drawGuide(); initOrientation();
       setTimeout(()=>{if(!tiltOk&&tiltAngle===0){tiltOk=true;updateLevelUI(0);}},1500);
     };
   } catch(e){ alert('카메라 권한이 필요합니다. 사진 업로드를 이용해주세요.'); }
 }
 function capturePhoto(){
+  const instr=document.getElementById('levelInstruction');
+  if(instr) instr.style.display='none';
   const video=document.getElementById('videoEl');
   const tmp=document.createElement('canvas');
   tmp.width=video.videoWidth||640; tmp.height=video.videoHeight||800;
